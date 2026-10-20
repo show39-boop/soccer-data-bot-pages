@@ -30,7 +30,7 @@ GASに追加した読み取り専用APIのソースは `gas/SoccerV3ReadApi.gs`�
 - GitHub: `show39-boop/soccer-data-bot-pages` / production branch: `main`
 - Build command: 空欄 / output directory: `public` / root: `/`
 - `GAS_API_URL`: 既存サーバー側環境変数。ブラウザやGitには含めない。
-- production・preview両環境に設定済み。既存匿名GASデプロイのURLを維持する。
+- production・preview両環境でSecretとして保持する（通常の変数はWrangler設定で上書きされるため）。既存匿名GASデプロイのURLを維持する。
 - Functionsの内部URL・例外詳細をブラウザやログへ出力しない。
 - CSPによりスクリプト・通信先を同一オリジンに制限する。
 

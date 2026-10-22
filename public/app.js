@@ -1,5 +1,5 @@
 import {display,escape as esc,japanTime,validatePayload,uniqueMatches,filterMatches,
-  chartNumber,readCache,writeCache} from './model.js';
+  chartNumber,readCache,writeCache,countryName} from './model.js';
 
 const $ = selector => document.querySelector(selector);
 const state = {matches:null,dashboard:null,busy:false,errors:{},active:'matches',detailOrigin:false};
@@ -23,7 +23,7 @@ function renderMatches() {
   }
   $('#match-list').innerHTML=rows.map(m=>'<button type="button" class="match-card" data-fixture="'+esc(m.fixtureId)+'" aria-label="'+esc(m.home)+' 対 '+esc(m.away)+' の詳細を開く">'+
     '<div class="match-top"><span class="kickoff">'+esc(m.date)+' '+esc(m.time)+'</span><span class="league">'+
-    (m.country?'<span class="country">'+esc(m.country)+'</span><span aria-hidden="true">/</span>':'')+
+    (m.country?'<span class="country">'+esc(countryName(m.country))+'</span><span aria-hidden="true">/</span>':'')+
     '<span class="league-name">'+esc(m.league)+'</span></span></div>'+
     '<div class="teams"><div class="team">'+esc(m.home)+'<span class="rank">ホーム順位 '+esc(m.homeRank)+'</span></div><span class="versus">VS</span><div class="team">'+esc(m.away)+'<span class="rank">アウェー順位 '+esc(m.awayRank)+'</span></div></div>'+
     '<div class="match-odds">'+oddsKeys.map(k=>'<div><span>'+k+'平均</span><strong>'+esc(m.detail['平均オッズ_'+k])+'</strong></div>').join('')+'</div>'+
@@ -36,7 +36,7 @@ function detailHtml(m) {
   const odds='<div class="scroll"><table class="data-table detail-table"><thead><tr><th>1X2オッズ</th><th>ホーム</th><th>引分</th><th>アウェー</th></tr></thead><tbody>'+
     ['平均','中央値'].map(type=>'<tr><td>'+type+'</td>'+oddsKeys.map(k=>'<td>'+esc(d[type+'オッズ_'+k])+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
   const recent=[1,2].map(i=>'<div class="h2h-item"><time>直近'+i+' ・'+esc(d['H2H直近'+i+'_試合日'])+'</time>'+esc(d['H2H直近'+i+'_ホーム'])+' vs '+esc(d['H2H直近'+i+'_アウェー'])+'<br>前半 '+esc(d['H2H直近'+i+'_前半'])+'　結果 '+esc(d['H2H直近'+i+'_結果'])+'</div>').join('');
-  return (m.country?'<div class="detail-country">'+esc(m.country)+'</div>':'')+
+  return (m.country?'<div class="detail-country">'+esc(countryName(m.country))+'</div>':'')+
     '<div class="detail-subtitle detail-league">'+esc(m.league)+'</div><h2 id="detail-title">'+esc(m.home)+'<br><small>vs</small> '+esc(m.away)+'</h2>'+
     '<div class="detail-subtitle detail-kickoff">'+esc(m.date)+' '+esc(m.time)+' JST</div>'+badge(m.seasonJudgement)+
     fields([['ホーム順位',m.homeRank],['アウェー順位',m.awayRank],['順位差',m.rankGap],['取得状態',m.status]])+

@@ -1,4 +1,11 @@
 export const CACHE_VERSION = 'soccer-bot-v3';
+// Display translation only; keep API/Sheets country values untouched.
+const COUNTRY_NAMES_JA = Object.freeze({
+  Vietnam:'ベトナム', Uzbekistan:'ウズベキスタン', Iraq:'イラク', Liberia:'リベリア',
+  Brazil:'ブラジル', China:'中国', Indonesia:'インドネシア'
+});
+export const countryName = value => typeof value === 'string' && Object.hasOwn(COUNTRY_NAMES_JA,value)
+  ? COUNTRY_NAMES_JA[value] : value;
 export const display = value => value === null || value === undefined || value === '' ? '—' : String(value);
 export const escape = value => display(value).replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

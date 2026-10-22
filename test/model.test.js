@@ -1,9 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {display,escape,filterMatches,uniqueMatches,japanTime,validatePayload,
-  chartNumber,readCache,writeCache,CACHE_VERSION} from '../public/model.js';
+  chartNumber,readCache,writeCache,CACHE_VERSION,countryName} from '../public/model.js';
 const payload={ok:true,schemaVersion:3,source:'api-football',sourceSheet:'02_試合前データ',matches:[]};
 const m=(id,time,mark='○')=>({fixtureId:id,kickoffAt:time,home:'FC Alpha',away:'Beta',league:'Premier League',seasonJudgement:mark,detail:{}});
+
+test('current seven countries display in Japanese; unknown and missing values are not guessed',()=>{
+  for(const [en,ja] of Object.entries({Vietnam:'ベトナム',Uzbekistan:'ウズベキスタン',Iraq:'イラク',
+    Liberia:'リベリア',Brazil:'ブラジル',China:'中国',Indonesia:'インドネシア'}))assert.equal(countryName(en),ja);
+  for(const value of [null,undefined,'','Unknown','constructor'])assert.equal(countryName(value),value);
+});
 test('blank is dash; true numeric/string zero is retained',()=>{
   for(const v of [null,undefined,''])assert.equal(display(v),'—');
   assert.equal(display(0),'0');assert.equal(display('0%'),'0%');

@@ -44,13 +44,14 @@ function soccerV3Kickoff_(date, time) {
 
 function soccerV3Matches_(ss) {
   const data = soccerV3Sheet_(ss, '02_試合前データ');
+  const countries = soccerV31Countries_(ss);
   const headers = data.display[0];
   function column(label) {
     const i = headers.indexOf(label);
     if (i < 0 || headers.lastIndexOf(label) !== i) throw new Error('Invalid data contract');
     return i;
   }
-  const labels = ['Fixture ID', '試合日', '開始時刻', '取得日時', '大会', 'ホーム', 'アウェー',
+  const labels = ['Fixture ID', 'League ID', '試合日', '開始時刻', '取得日時', '大会', 'ホーム', 'アウェー',
     'ホーム順位', 'アウェー順位', '順位差', '取得状態', 'シーズン進行度判定'];
   const columns = {};
   labels.concat(headers.filter(function (h) { return h; })).forEach(function (h) { columns[h] = column(h); });
@@ -86,7 +87,9 @@ function soccerV3Matches_(ss) {
       'アウェー年間予定試合数', 'アウェー消化済み試合数', 'アウェー残り試合数', 'アウェー消化率', 'アウェー残り率'
     ].forEach(function (label) { detail[label] = value(label); });
     matches.push({ fixtureId: id, date: date || null, time: time || null,
-      kickoffAt: soccerV3Kickoff_(date, time), league: value('大会'), home: value('ホーム'), away: value('アウェー'),
+      kickoffAt: soccerV3Kickoff_(date, time), league: value('大会'),
+      country: countries.get(String(raw[columns['League ID']] == null ? '' : raw[columns['League ID']]).trim()) || null,
+      home: value('ホーム'), away: value('アウェー'),
       homeRank: value('ホーム順位'), awayRank: value('アウェー順位'), rankGap: value('順位差'),
       seasonJudgement: value('シーズン進行度判定'), status: value('取得状態'), detail: detail });
   });
@@ -96,6 +99,26 @@ function soccerV3Matches_(ss) {
   });
   return { sourceSheet: '02_試合前データ', matches: matches,
     lastUpdatedAt: latest ? latest.toISOString() : null };
+}
+
+/** Exact League ID join only. No exclusion changes or external requests. */
+function soccerV31Countries_(ss) {
+  const sheet = ss.getSheetByName('08_リーグマスタ');
+  if (!sheet) throw new Error('Required league master unavailable');
+  const rows = sheet.getRange(1, 1, Math.max(1, sheet.getLastRow()), 2).getValues();
+  if (rows[0][0] !== 'APIリーグID' || !['国', '国名'].includes(rows[0][1])) {
+    throw new Error('Invalid league master contract');
+  }
+  const countries = new Map();
+  rows.slice(1).forEach(function (row) {
+    const id = String(row[0] == null ? '' : row[0]).trim();
+    if (!/^\d+$/.test(id)) return;
+    const country = String(row[1] == null ? '' : row[1]).trim() || null;
+    // Conflicting duplicate IDs must never produce a guessed country.
+    if (countries.has(id) && countries.get(id) !== country) countries.set(id, null);
+    else if (!countries.has(id)) countries.set(id, country);
+  });
+  return countries;
 }
 
 function soccerV3Dashboard_(ss) {

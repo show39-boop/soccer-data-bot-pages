@@ -42,3 +42,11 @@ test('cache is versioned, bounded, refuses old data, storage denial safe',()=>{
   assert.equal(readCache(storage,'matches'),null);
   writeCache({setItem(){throw Error();}},'matches',payload);
 });
+
+test('V3 cached matches without country remain compatible with optional V3.1 country',()=>{
+  const old={...payload,matches:[m('1',null)]};
+  const storage={getItem:()=>JSON.stringify({at:Date.now(),data:old})};
+  assert.equal(readCache(storage,'matches').matches[0].country,undefined);
+  const updated={...old,matches:[{...old.matches[0],country:'Vietnam'}]};
+  assert.equal(validatePayload('matches',updated).matches[0].country,'Vietnam');
+});

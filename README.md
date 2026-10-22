@@ -1,4 +1,4 @@
-# サッカーデータbot V3.0
+# サッカーデータbot V3.1
 
 既存公開URL： https://soccer-data-bot-pages.pages.dev
 
@@ -8,6 +8,7 @@ GASに追加した読み取り専用APIのソースは `gas/SoccerV3ReadApi.gs`�
 ## データ契約
 
 - `/api/matches` → GAS `api=v3-matches` → `02_試合前データ`
+- League IDを`08_リーグマスタ` A:Bと完全一致で照合し、任意の`country`を追加。国名不明・重複IDの国名競合はnull。大会名は02を維持。マスタは1要求につき1回読み取り、除外設定には触れない。
 - `/api/dashboard` → GAS `api=v3-dashboard` → `06_公開用ダッシュボード`
 - 読み取り対象はAPI-Football専用スプレッドシートのみ。GAS側で固定し、ブラウザから対象を指定できない。
 - `schemaVersion: 3`、`source: api-football`、対象シート名を両側で検証。旧7Mデータへフォールバックしない。
@@ -42,6 +43,8 @@ Node.js 22以降で `npm test`。有料API・本番シート書き込みは不�
 実データ照合と390px/1440pxブラウザ確認は別途実施する。
 
 ## 復旧
+
+V3.1直前の復旧地点：Git `90876c6e5272d59ca472fd92531682b56a1ab011`、Pages production deployment `68a6ab94-e046-4918-adbc-9a08703c73f8`。既存プロジェクトのDeploymentsから戻せる。GASの`country`は任意の追加フィールドなので、V3.0へ戻したUIとも互換性あり。
 
 V3導入前のGitコミット： `1782263bcab8c4007ffb36e9333160631f2f9b75`。
 Cloudflareの既存プロジェクトのDeploymentsから、対応する成功済みproduction deploymentへロールバック可能。

@@ -10,6 +10,18 @@ test('current seven countries display in Japanese; unknown and missing values ar
     Liberia:'リベリア',Brazil:'ブラジル',China:'中国',Indonesia:'インドネシア'}))assert.equal(countryName(en),ja);
   for(const value of [null,undefined,'','Unknown','constructor'])assert.equal(countryName(value),value);
 });
+
+test('new daily fixtures and API-Football country spellings are localized, not limited to seven',()=>{
+  const cases={Syria:'シリア',Montenegro:'モンテネグロ',Bulgaria:'ブルガリア',Croatia:'クロアチア',
+    Tunisia:'チュニジア',Serbia:'セルビア',Lebanon:'レバノン','Czech-Republic':'チェコ',Russia:'ロシア',
+    Rwanda:'ルワンダ','South-Africa':'南アフリカ',France:'フランス',Italy:'イタリア',Spain:'スペイン',
+    Panama:'パナマ','South-Korea':'韓国',Romania:'ルーマニア',Bangladesh:'バングラデシュ',
+    Japan:'日本',Germany:'ドイツ',Argentina:'アルゼンチン',England:'イングランド',
+    'Northern-Ireland':'北アイルランド','Ivory-Coast':'コートジボワール',World:'世界'};
+  for(const [name,ja] of Object.entries(cases))assert.equal(countryName(name),ja,name);
+  assert.equal(countryName('south-africa'),countryName('South Africa'));
+  assert.equal(countryName('France Unknown'),'France Unknown');
+});
 test('blank is dash; true numeric/string zero is retained',()=>{
   for(const v of [null,undefined,''])assert.equal(display(v),'—');
   assert.equal(display(0),'0');assert.equal(display('0%'),'0%');

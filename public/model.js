@@ -1,11 +1,30 @@
 export const CACHE_VERSION = 'soccer-bot-v3';
 // Display translation only; keep API/Sheets country values untouched.
-const COUNTRY_NAMES_JA = Object.freeze({
-  Vietnam:'ベトナム', Uzbekistan:'ウズベキスタン', Iraq:'イラク', Liberia:'リベリア',
-  Brazil:'ブラジル', China:'中国', Indonesia:'インドネシア'
-});
-export const countryName = value => typeof value === 'string' && Object.hasOwn(COUNTRY_NAMES_JA,value)
-  ? COUNTRY_NAMES_JA[value] : value;
+const countryKey = value => value.normalize('NFKC').toLowerCase().replace(/[-_\s]+/g,' ').trim();
+const COUNTRY_NAMES_JA = new Map();
+// Built-in locale data covers countries beyond today's fixtures without API calls.
+if (typeof Intl.DisplayNames === 'function') {
+  const english = new Intl.DisplayNames(['en'],{type:'region',fallback:'code'});
+  const japanese = new Intl.DisplayNames(['ja'],{type:'region',fallback:'code'});
+  for (let a=65;a<=90;a++) for (let b=65;b<=90;b++) {
+    const code=String.fromCharCode(a,b),name=english.of(code),translated=japanese.of(code);
+    if(name!==code&&translated!==code)COUNTRY_NAMES_JA.set(countryKey(name),translated);
+  }
+}
+// API-Football spellings and football associations not represented as ISO countries.
+for(const [name,translated] of Object.entries({
+  Vietnam:'ベトナム',Uzbekistan:'ウズベキスタン',Iraq:'イラク',Liberia:'リベリア',
+  Brazil:'ブラジル',China:'中国',Indonesia:'インドネシア',
+  England:'イングランド',Scotland:'スコットランド',Wales:'ウェールズ',
+  'Northern-Ireland':'北アイルランド',World:'世界',
+  'Czech-Republic':'チェコ','South-Korea':'韓国','North-Korea':'北朝鮮',
+  USA:'アメリカ合衆国',Turkey:'トルコ','Ivory-Coast':'コートジボワール',
+  'DR-Congo':'コンゴ民主共和国','Congo-DR':'コンゴ民主共和国',
+  'Cape-Verde':'カーボベルデ',Swaziland:'エスワティニ',
+  'Chinese-Taipei':'チャイニーズタイペイ'
+}))COUNTRY_NAMES_JA.set(countryKey(name),translated);
+export const countryName = value => typeof value === 'string'
+  ? COUNTRY_NAMES_JA.get(countryKey(value)) ?? value : value;
 export const display = value => value === null || value === undefined || value === '' ? '—' : String(value);
 export const escape = value => display(value).replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
